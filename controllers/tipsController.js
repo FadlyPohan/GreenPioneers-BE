@@ -1,16 +1,16 @@
-const Tips = require('../models').Tips;
-const { nanoid } = require('nanoid');
+const Tips = require("../models").Tips;
+const { nanoid } = require("nanoid");
 
 const addTipsController = async (req, res) => {
   try {
-    const id = nanoid(6);
+    const id = "tips-" + nanoid(4);
     const { judul, isi } = req.body;
 
     // validasi: jika user tidak mengirimkan data tips
     if (!judul || !isi) {
       return res.status(400).json({
-        status: 'error',
-        message: 'Mohon untuk memasukkan data tips',
+        status: "error",
+        message: "Semua data judul dan isi harus diisi",
       });
     }
 
@@ -21,28 +21,45 @@ const addTipsController = async (req, res) => {
       isi,
     };
 
-    // memasukkan data
+    // proses memasukkan data
     await Tips.create(newTips);
 
-    //
+    // berikan response success
     return res.status(201).json({
-      message: 'Tips berhasil dibuat',
+      status: "success",
+      message: "Tips berhasil dibuat",
       data: {
         tipsId: id,
       },
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: error.message });
+    // berikan response error
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
 const getTipsController = async (req, res) => {
   try {
+    // proses mengambil semua data tips
     const tips = await Tips.findAll();
-    return res.json(tips);
+
+    // berikan response success
+    return res.json({
+      status: "success",
+      message: "Berhasil mengambil semua tips",
+      data: {
+        tips,
+      },
+    });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    // berikan response error
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
@@ -62,20 +79,24 @@ const getTipsByIdController = async (req, res) => {
     if (!tips) {
       // berikan response error
       return res.status(404).json({
-        status: 'error',
-        message: 'Data tidak ditemukan',
+        status: "error",
+        message: "Tips tidak ditemukan",
       });
     }
 
     // berikan response success
     return res.json({
-      status: 'success',
+      status: "success",
       data: {
         tips,
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    // berikan response error
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
@@ -83,7 +104,8 @@ const editTipsByIdController = async (req, res) => {
   try {
     // mengambil id dari req.params
     const id = req.params.id;
-    const { judul, isi } = req.body;
+    const judul = req.body.judul;
+    const isi = req.body.isi;
 
     // cari tips berdasarkan id
     const tips = await Tips.findOne({
@@ -92,34 +114,23 @@ const editTipsByIdController = async (req, res) => {
       },
     });
 
-    // validasi: jika tips tidak ditemukan
-    if (!judul || !isi) {
+    // validasi: jika data tips yang dicari tidak ada
+    if (!tips) {
+      // berikan response error
       return res.status(404).json({
-        status: 'error',
-        message: 'Data tidak ditemukan',
+        status: "error",
+        message: "Tips tidak ditemukan",
       });
     }
 
-    // mengambil data req.body.tips
-    const newTips = req.body;
-
-    // validasi: jika tidak mengirimkan data tips
-    if (!newTips) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Mohon untuk memasukkan data tips yang baru',
-      });
-    }
-
-    // buat new objek toto
-    const newObjectTips = {
-      id,
-      judul,
-      isi,
+    // membuat object tips baru
+    const newTips = {
+      judul: judul ? judul : tips.judul,
+      isi: isi ? isi : tips.isi,
     };
 
     // proses update
-    await Tips.update(newObjectTips, {
+    await Tips.update(newTips, {
       where: {
         id: id,
       },
@@ -127,11 +138,15 @@ const editTipsByIdController = async (req, res) => {
 
     // berikan response success
     return res.json({
-      status: 'success',
-      message: 'Data berhasil diubah',
+      status: "success",
+      message: "Tips berhasil dirubah",
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    // berikan response error
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
@@ -150,8 +165,8 @@ const deleteTipsByIdController = async (req, res) => {
     // validasi: jika data tips tidak ditemukan
     if (!tips) {
       return res.status(404).json({
-        status: 'error',
-        message: 'Data tidak titemukan',
+        status: "error",
+        message: "Tips tidak titemukan",
       });
     }
 
@@ -164,11 +179,15 @@ const deleteTipsByIdController = async (req, res) => {
 
     // berikan response success
     return res.json({
-      status: 'success',
-      message: 'Data berhasil dihapus',
+      status: "success",
+      message: "Tips berhasil dihapus",
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    // berikan response error
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 };
 
