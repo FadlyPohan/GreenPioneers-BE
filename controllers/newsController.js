@@ -10,7 +10,7 @@ const addNewsController = async (req, res) => {
     const id = "news-" + nanoid(4);
     const { judul, isi } = req.body;
     const waktu = dayjs().locale("id").format("DD-MMMM-YYYY HH:mm:ss");
-    const gambarPath = req.file ? req.file.path : null;
+    const imageBuffer = req.file ? req.file.buffer : null;
 
     // validasi: jika user tidak mengirimkan data news lengkap
     if (!judul || !isi) {
@@ -22,9 +22,9 @@ const addNewsController = async (req, res) => {
 
     let imageUrl = null;
     // validasi: jika user mengirimkan gambar
-    if (gambarPath) {
-      // proses upload gambar ke imgbb
-      imageUrl = await uploadImageToImgBB(gambarPath);
+    if (imageBuffer) {
+      // proses upload gambar ke ImgBB
+      imageUrl = await uploadImageToImgBB(imageBuffer, req.file.originalname);
     }
 
     // buat object news
@@ -122,7 +122,7 @@ const editNewsByIdController = async (req, res) => {
     const id = req.params.id;
     const judul = req.body.judul;
     const isi = req.body.isi;
-    const gambarPath = req.file ? req.file.path : null;
+    const imageBuffer = req.file ? req.file.buffer : null;
 
     // cek data di db berdasarkan id
     const news = await News.findOne({
@@ -140,9 +140,9 @@ const editNewsByIdController = async (req, res) => {
 
     let imageUrl = null;
     // validasi: jika user mengirimkan gambar
-    if (gambarPath) {
+    if (imageBuffer) {
       // proses upload gambar ke imgbb
-      imageUrl = await uploadImageToImgBB(gambarPath);
+      imageUrl = await uploadImageToImgBB(imageBuffer, req.file.originalname);
     }
 
     // buat object news baru

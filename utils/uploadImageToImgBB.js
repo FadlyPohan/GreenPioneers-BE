@@ -1,21 +1,14 @@
 const axios = require("axios");
 const FormData = require("form-data");
-const fs = require("fs");
-const path = require("path");
 
-const uploadImageToImgBB = async (filePath) => {
+const uploadImageToImgBB = async (imageBuffer, originalName) => {
   try {
-    // baca gambar
-    const image = fs.readFileSync(filePath);
-
-    // masukkan kedalam form
+    // Buat objek FormData dan tambahkan parameter-key dan gambar ke dalamnya
     const formData = new FormData();
     formData.append("key", process.env.IMGBB_KEY);
-    formData.append("image", image, {
-      filename: path.basename(filePath),
-    });
+    formData.append("image", imageBuffer, { filename: originalName });
 
-    // upload gambar ke imgbb
+    // Upload gambar ke ImgBB menggunakan axios
     const response = await axios.post(
       "https://api.imgbb.com/1/upload",
       formData,
@@ -24,28 +17,15 @@ const uploadImageToImgBB = async (filePath) => {
       }
     );
 
-    // mengambil url gambar
+    // Mengambil URL gambar yang diunggah
     const imageUrl = response.data.data.url;
 
-    // menghapus gambar setelah terupload
-    deleteImage(filePath);
-
-    // mengembalikan url gambar untuk disimpan di dalam database bersama data lainya
+    // Mengembalikan URL gambar untuk disimpan di dalam database bersama data lainya
     return imageUrl;
   } catch (error) {
     console.error("Error uploading image to ImgBB:", error);
     throw error;
   }
-};
-
-const deleteImage = (filePath) => {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error("Error deleting image:", err);
-      throw err;
-    }
-    console.log("Image deleted successfully");
-  });
 };
 
 module.exports = uploadImageToImgBB;

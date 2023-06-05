@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       isi: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
     });
   },
